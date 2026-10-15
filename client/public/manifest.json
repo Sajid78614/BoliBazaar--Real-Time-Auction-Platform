@@ -1,0 +1,9 @@
+{
+  "name": "Bolibazaar - Real-Time Auction Platform",
+  "short_name": "Bolibazaar",
+  "description": "A real-time auction platform with live leaderboards, instant credit settlements, and AI-powered recommendations",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f8fafc",
+  "theme_color": "#38bdf8"
+}
