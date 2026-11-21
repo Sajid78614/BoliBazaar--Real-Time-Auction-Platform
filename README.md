@@ -26,11 +26,11 @@ Note - when accessing the deployment , it might take few seconds for the deploym
 git clone https://github.com/<your-username>/Bolibazaar.git
 cd Bolibazaar
 
-# Install backend
-cd server && npm install
+# Install the root development runner, backend, and frontend
+npm install
+npm install --prefix server
+npm install --prefix client
 
-# Install frontend
-cd ../client && npm install
 ```
 
 ### 2. Environment Variables
@@ -69,14 +69,10 @@ VITE_API=http://localhost:3000
 ### 3. Run
 
 ```bash
-# Terminal 1 - Backend
-cd server && npm run dev
-
-# Terminal 2 - Frontend
-cd client && npm run dev
+npm run dev
 ```
 
-Open **http://localhost:5173** - you're live!
+This starts both the backend and frontend. Open **http://localhost:5173**.
 
 ---
 
