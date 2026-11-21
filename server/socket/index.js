@@ -21,10 +21,16 @@ export const initSocket = (server) => {
     .split(",")
     .map((origin) => origin.trim())
     .filter(Boolean);
+  const normalizedOrigins = allowedOrigins.map((origin) =>
+    origin.replace(/\/+$/, ""),
+  );
 
   io = new Server(server, {
     cors: {
-      origin: allowedOrigins.length > 1 ? allowedOrigins : allowedOrigins[0],
+      origin:
+        normalizedOrigins.length > 1
+          ? normalizedOrigins
+          : normalizedOrigins[0],
       methods: ["GET", "POST"],
       credentials: true,
     },

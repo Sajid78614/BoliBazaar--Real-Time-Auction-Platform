@@ -1,13 +1,11 @@
 import { io } from "socket.io-client";
-import { getAuthToken } from "./api.js";
-
-const SOCKET_URL = import.meta.env.VITE_API;
+import { API_BASE_URL, getAuthToken } from "./api.js";
 
 let socket = null;
 
 export const getSocket = () => {
   if (!socket) {
-    socket = io(SOCKET_URL, {
+    socket = io(API_BASE_URL, {
       withCredentials: true,
       autoConnect: false,
       transports: ["websocket", "polling"],

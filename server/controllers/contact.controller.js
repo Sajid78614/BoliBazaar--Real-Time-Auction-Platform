@@ -1,7 +1,7 @@
 import { Resend } from "resend";
 import { env } from "../config/env.config.js";
 
-const resend = new Resend(env.resend_api_key);
+const resend = env.resend_api_key ? new Resend(env.resend_api_key) : null;
 
 // Escape HTML to prevent XSS in email templates
 const escapeHtml = (str) => {
@@ -34,6 +34,12 @@ export const handleSendMessage = async (req, res) => {
     const safeEmail = escapeHtml(email);
     const safeSubject = escapeHtml(subject);
     const safeMessage = escapeHtml(message);
+
+    if (!resend) {
+      return res.status(503).json({
+        error: "Email delivery is not configured on this server",
+      });
+    }
 
     await resend.batch.send([
       {

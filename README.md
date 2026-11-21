@@ -64,7 +64,6 @@ OPENAI_API_KEY=your-openai-key       # OpenAI GPT-3.5
 
 ```env
 VITE_API=http://localhost:3000
-VITE_AUCTION_API=http://localhost:3000/auction
 ```
 
 ### 3. Run
@@ -432,23 +431,52 @@ Socket connections are authenticated via JWT from cookies. Users are tracked per
 
 ## Deployment
 
-### Frontend → Vercel
+The backend uses Socket.IO for live bidding, so deploy it to a persistent Node
+service rather than a serverless function. The included `render.yaml` configures
+the backend for Render; deploy the frontend separately to Vercel.
 
-```bash
-cd client && npm run build
-# Deploy via Vercel CLI or GitHub integration
-# Set env: VITE_API, VITE_AUCTION_API pointing to backend URL
+### 1. Deploy the backend to Render
+
+Create a new Blueprint from this repository and use `render.yaml`. Set:
+
+- `MONGO_URL`: a reachable MongoDB Atlas connection string (allow Render's
+  outbound connections in the Atlas network access settings).
+- `ORIGIN`: the exact frontend origin, such as
+  `https://bolibazaar.vercel.app` (no trailing slash). Multiple origins can be
+  comma-separated.
+- `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, and
+  `CLOUDINARY_API_SECRET`: required for auction image uploads.
+- `RESEND_API_KEY`: optional; contact form email delivery returns a clear
+  configuration error until this is set.
+
+Render generates `JWT_SECRET`. Keep all credentials in the hosting provider's
+environment settings, never in the repository. Confirm the deployment's
+`/health` URL reports `{"status":"ok","database":"connected"}`.
+
+### 2. Deploy the frontend to Vercel
+
+Create a Vercel project for this repository and set its **Root Directory** to
+`client`. Configure this build-time environment variable for Production (and
+Preview if needed):
+
+```env
+VITE_API=https://<your-render-service>.onrender.com
 ```
 
-### Backend → Vercel (Serverless)
+Use the backend origin only (no `/auction` suffix). Both REST requests and
+Socket.IO use this setting. Redeploy after changing it; Vite embeds it in the
+frontend build. The Vercel rewrite in `client/vercel.json` supports client-side
+routes.
 
-The server includes a `vercel.json` for serverless deployment:
+After the Vercel domain is available, set that exact origin in Render's
+`ORIGIN` variable and redeploy the backend. For a custom domain, add its origin
+as well. Frontend and backend must both use HTTPS in production.
 
-```bash
-cd server
-# Deploy via Vercel CLI or GitHub integration
-# Set all env vars: MONGO_URL, JWT_SECRET, CLOUDINARY_*, RESEND_API_KEY, ORIGIN
-```
+Before promoting a deployment, verify login/signup, authenticated API requests,
+auction image uploads, live Socket.IO bidding, and the backend `/health`
+endpoint. Do not deploy the Socket.IO backend as a Vercel serverless function:
+serverless functions do not provide the persistent WebSocket server required
+for this application.
 
 
 </div>

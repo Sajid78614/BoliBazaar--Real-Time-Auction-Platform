@@ -16,7 +16,7 @@ import notificationRoutes from "./routes/notification.routes.js";
 import analyticsRoutes from "./routes/analytics.routes.js";
 import recommendationRoutes from "./routes/recommendation.routes.js";
 import liveAuctionRoutes from "./routes/liveAuction.routes.js";
-import { connectDB } from "./config/db.config.js";
+import mongoose from "mongoose";
 
 export const app = express();
 
@@ -47,13 +47,13 @@ app.use(cookieParser());
 app.use(compression());
 app.use(express.json());
 
-// DB connection for Vercel serveless deployment
-if (process.env.VERCEL) {
-  app.use(async (req, res, next) => {
-    await connectDB();
-    next();
+app.get("/health", (req, res) => {
+  const databaseConnected = mongoose.connection.readyState === 1;
+  res.status(databaseConnected ? 200 : 503).json({
+    status: databaseConnected ? "ok" : "unavailable",
+    database: databaseConnected ? "connected" : "disconnected",
   });
-}
+});
 
 app.use("/auth", authRoutes);
 app.use("/user", userRoutes);
@@ -67,4 +67,4 @@ app.use("/analytics", analyticsRoutes);
 app.use("/recommendations", recommendationRoutes);
 app.use("/live-auction", liveAuctionRoutes);
 
-export default app; // Exporting default app for serverless deployment
+export default app;

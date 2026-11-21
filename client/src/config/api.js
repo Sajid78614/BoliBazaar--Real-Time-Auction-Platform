@@ -25,8 +25,16 @@ export const clearAuthToken = () => {
   storage.removeItem(AUTH_TOKEN_KEY);
 };
 
+const configuredApiUrl = import.meta.env.VITE_API?.replace(/\/+$/, "");
+
+if (import.meta.env.PROD && !configuredApiUrl) {
+  throw new Error("VITE_API must be set to the deployed backend URL.");
+}
+
+export const API_BASE_URL = configuredApiUrl || "http://localhost:3000";
+
 export const api = axios.create({
-  baseURL: import.meta.env.VITE_API,
+  baseURL: API_BASE_URL,
   withCredentials: true,
 });
 
